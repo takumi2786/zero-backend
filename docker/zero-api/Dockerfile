@@ -46,4 +46,3 @@ RUN \
   git config --global --add safe.directory /app
 
 CMD ["go", "run", "./cmd", "serve"]
-

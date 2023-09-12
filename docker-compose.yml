@@ -4,11 +4,13 @@ services:
     build:
       context: "."
       target: "dev"
+      dockerfile: "docker/zero-api/Dockerfile"
     volumes:
       - ".:/app"
       - "/root/go/pkg/mod"
       - "/root/.cache/go-build"
     ports: ["8080:8080"]
+    env_file: "./deploy/local/.env"
 
   mysql:
     image: mysql:8.1.0
