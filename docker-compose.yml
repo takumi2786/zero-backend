@@ -24,6 +24,7 @@ services:
       - ./docker/mysql/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
       - ./docker/mysql/init.sql:/var/tmp/init.sql
       - sql-data:/var/lib/mysql
+    ports: ["3306:3306"]
     command: "--explicit-defaults-for-timestamp"
 
 volumes:
