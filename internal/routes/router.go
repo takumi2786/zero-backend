@@ -12,8 +12,11 @@ import (
 func SetRouting(ctx context.Context, router *gin.Engine, cfg *config.Config) error {
 
 	// set handleers
-	healthCheckhandler := handlers.NewHealthCheckHandler()
-	router.GET("/healthcheck", healthCheckhandler.ServeHTTP)
+	healthCheckHandler := handlers.NewHealthCheckHandler()
+	router.GET("/healthcheck", healthCheckHandler.ServeHTTP)
+
+	getUserHandler := handlers.NewGetUsersHandler()
+	router.GET("/users", getUserHandler.ServeHTTP)
 	return nil
 }
 
