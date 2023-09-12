@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: "."
+      target: "dev"
+    volumes:
+      - ".:/app"
+      - "/root/go/pkg/mod"
+      - "/root/.cache/go-build"
+    ports: ["8080:8080"]
+
+  mysql:
+    image: mysql:8.1.0
+    tty: true
+    environment:
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - .:/app
+      - ./docker/mysql/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+      - ./docker/mysql/init.sql:/var/tmp/init.sql
+      - sql-data:/var/lib/mysql
+    command: "--explicit-defaults-for-timestamp"
+
+volumes:
+  sql-data:
