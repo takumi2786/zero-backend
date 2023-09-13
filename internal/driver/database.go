@@ -19,6 +19,7 @@ func NewDB(ctx context.Context, cfg *Config) (*sqlx.DB, error) {
 
 /*
 	sqlx.DBのメソッドのうち、アプリケーションで利用する機能のみをインターフェースとして定義する
+	これらは使わなくても良いかも
 */
 // トランザクションメソッド系類
 type Beginner interface {
