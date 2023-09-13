@@ -10,7 +10,7 @@ go/build:
 	go build -o zero-api ./cmd/zero-api
 
 go/run:
-	set -a && source ./deploy/local/.env && go run ./cmd/main.go
+	set -a && source ./config/local.env && go run ./cmd/main.go
 
 mysql:
 	docker-compose exec mysql mysql zero_system

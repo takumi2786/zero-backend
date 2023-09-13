@@ -1,4 +1,4 @@
-package config
+package driver
 
 import (
 	"github.com/caarlos0/env/v6"
@@ -14,7 +14,7 @@ type Config struct {
 // @return *Config 環境変数の構造体
 //
 // @return error エラー
-func New() (*Config, error) {
+func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	if err := env.Parse(cfg); err != nil {
 		return nil, err
