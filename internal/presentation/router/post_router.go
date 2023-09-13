@@ -8,10 +8,10 @@ import (
 	"github.com/takumi2786/zero-backend/internal/presentation/controller"
 )
 
-func NewUserRouter(config *driver.Config, group *gin.RouterGroup, db *sqlx.DB) {
-	ur := repository.NewUserRepository(db)
-	uc := controller.UserControler{
-		UserRepository: *ur,
+func NewPostRouter(config *driver.Config, group *gin.RouterGroup, db *sqlx.DB) {
+	pr := repository.NewPostRepository(db)
+	pc := controller.PostControler{
+		PostRepository: *pr,
 	}
-	group.GET("/users", uc.GetUsers)
+	group.POST("/posts", pc.AddPost)
 }

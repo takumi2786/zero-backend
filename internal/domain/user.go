@@ -3,8 +3,6 @@ package domain
 import (
 	"context"
 	"time"
-
-	"github.com/takumi2786/zero-backend/internal/driver"
 )
 
 // model
@@ -21,5 +19,5 @@ type Users []*User
 
 // repository interface
 type UserRepository interface {
-	FindUsers(ctx context.Context, db driver.Queryer) (User, error)
+	FindUsers(ctx context.Context) (Users, error)
 }
