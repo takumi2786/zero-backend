@@ -6,8 +6,11 @@ docker/build:
 docker/run:
 	docker-compose up -d
 
-build:
+go/build:
 	go build -o zero-api ./cmd/zero-api
 
-run:
-	set -a && source ./deploy/local/.env && go run ./cmd/main.go
+go/run:
+	set -a && source ./config/local.env && go run ./cmd/main.go
+
+mysql:
+	docker-compose exec mysql mysql zero_system

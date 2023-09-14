@@ -4,51 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
+	"time"
 
 	"github.com/gin-contrib/cors"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
-	"github.com/takumi2786/zero-backend/internal/config"
-	"github.com/takumi2786/zero-backend/internal/routes"
-	"golang.org/x/sync/errgroup"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/takumi2786/zero-backend/internal/driver"
+	"github.com/takumi2786/zero-backend/internal/interface/router"
+	"go.uber.org/zap"
 )
-
-type Server struct {
-	srv *http.Server
-}
-
-func NewServer(mux http.Handler, addr string) *Server {
-	return &Server{
-		srv: &http.Server{Handler: mux, Addr: addr},
-	}
-}
-
-func (s *Server) Run(ctx context.Context) error {
-	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	eg, ctx := errgroup.WithContext(ctx)
-	eg.Go(func() error {
-		// http.ErrServerClosed は
-		// http.Server.Shutdown() が正常に終了したことを示すので異常ではない
-		if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Printf("failed to close: %+v", err)
-			return err
-		}
-		return nil
-	})
-
-	// チャンネルからの終了通知を待つ
-	<-ctx.Done()
-	// サーバーをシャットダウン
-	if err := s.srv.Shutdown(context.Background()); err != nil {
-		log.Printf("failed to shutdown: %+v", err)
-	}
-	// 別ルーチンのグレースフルシャットダウンの終了を待つ
-	return eg.Wait()
-}
 
 func main() {
 	log.Printf("start server")
@@ -61,7 +27,7 @@ func main() {
 
 func run(ctx context.Context) error {
 	// Read environment variables
-	cfg, err := config.New()
+	cfg, err := driver.NewConfig()
 	if err != nil {
 		return err
 	}
@@ -71,10 +37,33 @@ func run(ctx context.Context) error {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	router := gin.Default()
+	gin := gin.Default()
+
+	// Setup logger
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	// zap.ReplaceGlobals(logger)
+
+	logger.Info("Start Server")
+
+	// Add a ginzap middleware, which:
+	//   - Logs all requests, like a combined access and error log.
+	//   - Logs to stdout.
+	//   - RFC3339 with UTC time format.
+	gin.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+
+	// Logs all panic to error log
+	//   - stack means whether output the stack info.
+	gin.Use(ginzap.RecoveryWithZap(logger, true))
+
+	// Connect to database
+	db, err := driver.NewDB(ctx, cfg)
+	if err != nil {
+		panic(err)
+	}
 
 	// CORS
-	router.Use(cors.New(cors.Config{
+	gin.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"http://localhost*"},
 		AllowMethods:  []string{"*"},
 		AllowHeaders:  []string{"*"},
@@ -82,10 +71,13 @@ func run(ctx context.Context) error {
 	}))
 
 	// Routing
-	if err = routes.SetRouting(ctx, router, cfg); err != nil {
-		return err
-	}
+	timeout := time.Duration(cfg.Timeout) * time.Second
+	router.Setup(cfg, logger, gin, db, timeout)
 
-	server := NewServer(router, fmt.Sprintf(":%d", cfg.Port))
-	return server.Run(ctx)
+	// Run server
+	err = gin.Run(fmt.Sprintf(":%d", cfg.Port))
+	if err != nil {
+		panic(err)
+	}
+	return nil
 }
