@@ -12,6 +12,9 @@ services:
     ports: ["8080:8080"]
     env_file: "./config/local.env"
 
+    networks:
+      - zero
+
   mysql:
     image: mysql:8.1.0
     tty: true
@@ -26,6 +29,11 @@ services:
       - sql-data:/var/lib/mysql
     ports: ["3306:3306"]
     command: "--explicit-defaults-for-timestamp"
+    networks:
+      - zero
 
 volumes:
   sql-data:
+
+networks:
+  zero:

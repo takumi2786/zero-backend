@@ -1,5 +1,11 @@
 Backend application created by golang
 
+## run
+
+```bash
+make docker/build
+make docker/run
+```
 
 ## migration
 
