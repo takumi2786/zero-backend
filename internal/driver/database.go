@@ -3,12 +3,17 @@ package driver
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
 
 func NewDB(ctx context.Context, cfg *Config) (*sqlx.DB, error) {
-	db, err := sqlx.Connect("mysql", "test:test@tcp(localhost:3306)/zero_system?charset=utf8mb4")
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
+		cfg.DBUser, cfg.DBPass, cfg.DBHost, cfg.DBPort, cfg.DBName,
+	)
+	db, err := sqlx.Connect("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}

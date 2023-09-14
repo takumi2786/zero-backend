@@ -5,8 +5,14 @@ import (
 )
 
 type Config struct {
-	Env  string `env:"ENVIRONMENT" envDefault:"production"`
-	Port int    `env:"PORT" envDefault:"8080"`
+	Env     string `env:"ENVIRONMENT" envDefault:"production"`
+	Port    int    `env:"PORT" envDefault:"8080"`
+	Timeout int    `env:"TIMEOUT" envDefault:"10"`
+	DBHost  string `env:"DB_HOST" envDefault:"localhost"`
+	DBPort  string `env:"DB_PORT" envDefault:"3306"`
+	DBUser  string `env:"DB_USER" envDefault:"test"`
+	DBPass  string `env:"DB_PASS" envDefault:"test"`
+	DBName  string `env:"DB_NAME" envDefault:"zero_system"`
 }
 
 // 環境変数の構造体を返却
