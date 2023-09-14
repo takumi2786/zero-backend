@@ -7,6 +7,16 @@ make docker/build
 make docker/run
 ```
 
+```bash
+curl -X POST \
+-H "Content-Type: application/json" \
+-d '{"title":"焼肉について","content":"焼肉は美味しい"}' \
+localhost:8080/posts
+
+curl -X GET \
+localhost:8080/posts
+```
+
 ## migration
 
 ```bash
