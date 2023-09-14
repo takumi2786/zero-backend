@@ -44,7 +44,7 @@ func run(ctx context.Context) error {
 	defer logger.Sync()
 	// zap.ReplaceGlobals(logger)
 
-	logger.Info("Start Server", zap.Any("config", cfg))
+	logger.Info("Start Server")
 
 	// Add a ginzap middleware, which:
 	//   - Logs all requests, like a combined access and error log.
