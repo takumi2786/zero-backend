@@ -12,4 +12,5 @@ import (
 func Setup(config *driver.Config, logger *zap.Logger, gin *gin.Engine, db *sqlx.DB, timeout time.Duration) {
 	publicRouter := gin.Group("")
 	NewPostRouter(config, timeout, logger, publicRouter, db)
+	NewLoginRouter(config, timeout, logger, publicRouter, db)
 }

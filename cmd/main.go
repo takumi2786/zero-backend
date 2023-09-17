@@ -12,7 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/takumi2786/zero-backend/internal/driver"
-	"github.com/takumi2786/zero-backend/internal/interface/router"
+	"github.com/takumi2786/zero-backend/internal/interface/controller"
+	"github.com/takumi2786/zero-backend/internal/interface/repository"
+
+	"github.com/takumi2786/zero-backend/internal/usecase"
 	"go.uber.org/zap"
 )
 
@@ -40,7 +43,9 @@ func run(ctx context.Context) error {
 	gin := gin.Default()
 
 	// Setup logger
-	logger, _ := zap.NewProduction()
+	zapCfg := zap.NewProductionConfig()
+	zapCfg.DisableStacktrace = true
+	logger, _ := zapCfg.Build()
 	defer logger.Sync()
 	// zap.ReplaceGlobals(logger)
 
@@ -54,7 +59,7 @@ func run(ctx context.Context) error {
 
 	// Logs all panic to error log
 	//   - stack means whether output the stack info.
-	gin.Use(ginzap.RecoveryWithZap(logger, true))
+	// gin.Use(ginzap.RecoveryWithZap(logger, true))
 
 	// Connect to database
 	db, err := driver.NewDB(ctx, cfg)
@@ -70,9 +75,23 @@ func run(ctx context.Context) error {
 		AllowWildcard: true,
 	}))
 
-	// Routing
-	timeout := time.Duration(cfg.Timeout) * time.Second
-	router.Setup(cfg, logger, gin, db, timeout)
+	/*
+		Routing
+	*/
+
+	// Setup dependencies
+	// timeout := time.Duration(cfg.Timeout) * time.Second
+	ur := repository.NewUserRepository(db)
+	aur := repository.NewAuthUserRepository(db)
+	tg := driver.NewJWTTokenGenerator()
+	lu := usecase.NewLoginInteractor(logger, ur, aur, tg)
+	lc := controller.NewLoginController(logger, lu)
+
+	// setup router
+	driver.SetRouting(
+		gin,
+		lc,
+	)
 
 	// Run server
 	err = gin.Run(fmt.Sprintf(":%d", cfg.Port))

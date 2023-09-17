@@ -10,7 +10,7 @@ import (
 )
 
 type PostControler struct {
-	PostUsecase *usecase.PostUseCase
+	PostUsecase usecase.PostUseCase
 	Logger      *zap.Logger
 }
 

@@ -12,9 +12,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewPostRouter(config *driver.Config, timeout time.Duration, logger *zap.Logger, group *gin.RouterGroup, db *sqlx.DB) {
+func NewPostRouter(
+	config *driver.Config,
+	timeout time.Duration,
+	logger *zap.Logger,
+	group *gin.RouterGroup,
+	db *sqlx.DB,
+) {
 	pr := repository.NewPostRepository(db)
-	pu := usecase.NewPostUseCase(pr, timeout)
+	pu := usecase.NewPostInteractor(pr, timeout)
 	pc := controller.PostControler{
 		PostUsecase: pu,
 		Logger:      logger,
