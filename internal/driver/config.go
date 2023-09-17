@@ -6,7 +6,7 @@ import (
 
 type Config struct {
 	Env     string `env:"ENVIRONMENT" envDefault:"production"`
-	Port    int    `env:"PORT" envDefault:"8080"`
+	Port    int    `env:"PORT" envDefault:"8081"`
 	Timeout int    `env:"TIMEOUT" envDefault:"10"`
 	DBHost  string `env:"DB_HOST" envDefault:"localhost"`
 	DBPort  string `env:"DB_PORT" envDefault:"3306"`
