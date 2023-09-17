@@ -12,10 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/takumi2786/zero-backend/internal/driver"
-	"github.com/takumi2786/zero-backend/internal/interface/controller"
-	"github.com/takumi2786/zero-backend/internal/interface/repository"
 
-	"github.com/takumi2786/zero-backend/internal/usecase"
 	"go.uber.org/zap"
 )
 
@@ -80,17 +77,15 @@ func run(ctx context.Context) error {
 	*/
 
 	// Setup dependencies
-	// timeout := time.Duration(cfg.Timeout) * time.Second
-	ur := repository.NewUserRepository(db)
-	aur := repository.NewAuthUserRepository(db)
-	tg := driver.NewJWTTokenGenerator()
-	lu := usecase.NewLoginInteractor(logger, ur, aur, tg)
-	lc := controller.NewLoginController(logger, lu)
+	timeout := time.Duration(cfg.Timeout) * time.Second
+	lc := InitializeLoginController(logger, db)
+	pc := InitializePostController(logger, db, timeout)
 
 	// setup router
 	driver.SetRouting(
 		gin,
 		lc,
+		pc,
 	)
 
 	// Run server

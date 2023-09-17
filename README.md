@@ -15,6 +15,14 @@ localhost:8080/posts
 
 curl -X GET \
 localhost:8080/posts
+
+curl -X POST \
+-H "Content-Type: application/json" \
+-d '{
+	"identifier": "mail@example.com",
+	"credencial": "password"
+}' \
+localhost:8081/login
 ```
 
 ## migration

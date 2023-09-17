@@ -14,7 +14,7 @@ type UserRepository struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository(db *sqlx.DB) *UserRepository {
+func NewUserRepository(db *sqlx.DB) domain.UserRepository {
 	return &UserRepository{db: db}
 }
 
@@ -36,7 +36,7 @@ type AuthUserRepository struct {
 	db *sqlx.DB
 }
 
-func NewAuthUserRepository(db *sqlx.DB) *AuthUserRepository {
+func NewAuthUserRepository(db *sqlx.DB) domain.AuthUserRepository {
 	return &AuthUserRepository{db: db}
 }
 

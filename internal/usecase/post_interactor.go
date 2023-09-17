@@ -12,7 +12,7 @@ type PostInteractor struct {
 	contextTimeout time.Duration
 }
 
-func NewPostInteractor(postRepository domain.PostRepository, contextTimeout time.Duration) *PostInteractor {
+func NewPostInteractor(postRepository domain.PostRepository, contextTimeout time.Duration) PostUsecase {
 	return &PostInteractor{
 		PostRepository: postRepository,
 		contextTimeout: contextTimeout,

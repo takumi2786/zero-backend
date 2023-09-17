@@ -26,7 +26,7 @@ func NewLoginInteractor(
 	userRepository domain.UserRepository,
 	authUserRepository domain.AuthUserRepository,
 	tokenGenerator TokenGenerator,
-) *LoginInteractor {
+) LoginUsecase {
 	return &LoginInteractor{
 		logger:             logger,
 		userRepository:     userRepository,

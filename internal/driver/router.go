@@ -8,8 +8,11 @@ import (
 // APIのルーティングを設定する
 func SetRouting(
 	gin *gin.Engine,
-	lc *controller.LoginControler,
+	lc *controller.LoginController,
+	pc *controller.PostController,
 ) {
 	group := gin.Group("")
 	group.POST("/login", lc.Login)
+	group.GET("/posts", pc.FindPosts)
+	group.POST("/posts", pc.AddPost)
 }

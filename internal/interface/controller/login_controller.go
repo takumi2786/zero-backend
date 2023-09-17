@@ -9,13 +9,13 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type LoginControler struct {
+type LoginController struct {
 	Logger       *zap.Logger
 	LoginUsecase usecase.LoginUsecase
 }
 
-func NewLoginController(logger *zap.Logger, lu usecase.LoginUsecase) *LoginControler {
-	return &LoginControler{LoginUsecase: lu, Logger: logger}
+func NewLoginController(logger *zap.Logger, lu usecase.LoginUsecase) *LoginController {
+	return &LoginController{LoginUsecase: lu, Logger: logger}
 }
 
 type LoginInput struct {
@@ -23,7 +23,7 @@ type LoginInput struct {
 	Credential string `json:"credencial" binding:"required"`
 }
 
-func (lc *LoginControler) Login(ctx *gin.Context) {
+func (lc *LoginController) Login(ctx *gin.Context) {
 	// 入力値を取得
 	var loginInput LoginInput // request body
 	if err := ctx.ShouldBindJSON(&loginInput); err != nil {
@@ -48,13 +48,3 @@ func (lc *LoginControler) Login(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"token": *token})
 }
-
-/*
-curl -X POST \
--H "Content-Type: application/json" \
--d '{
-	"identifier": "mail@example.com",
-	"credencial": "password_"
-}' \
-localhost:8081/login
-*/

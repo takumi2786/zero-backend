@@ -9,9 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type PostControler struct {
-	PostUsecase usecase.PostUseCase
-	Logger      *zap.Logger
+type PostController struct {
+	logger      *zap.Logger
+	postUsecase usecase.PostUsecase
+}
+
+func NewPostController(logger *zap.Logger, pu usecase.PostUsecase) *PostController {
+	return &PostController{postUsecase: pu, logger: logger}
 }
 
 /*
@@ -22,22 +26,22 @@ type AddPostInput struct {
 	Content string `json:"content" binding:"required,max=500"`
 }
 
-func (pc *PostControler) AddPost(ctx *gin.Context) {
+func (pc *PostController) AddPost(ctx *gin.Context) {
 	// 入力値を取得
 	var postInput AddPostInput // request body
 	if err := ctx.ShouldBindJSON(&postInput); err != nil {
 		ctx.JSON(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
-		pc.Logger.Error("failed to parse request", zap.Error(err))
+		pc.logger.Error("failed to parse request", zap.Error(err))
 		return
 	}
 
 	// usecaseのメソッドを呼び出す
-	err := pc.PostUsecase.AddPost(
+	err := pc.postUsecase.AddPost(
 		ctx, usecase.AddPostInput{Title: postInput.Title, Content: postInput.Content},
 	)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
-		pc.Logger.Error("failed to add post", zap.Error(err))
+		pc.logger.Error("failed to add post", zap.Error(err))
 		return
 	}
 	ctx.JSON(http.StatusCreated, gin.H{"message": "created"})
@@ -53,11 +57,11 @@ type PostElement struct {
 }
 type FindPostsOutPut []PostElement
 
-func (pc *PostControler) FindPosts(ctx *gin.Context) {
-	posts, err := pc.PostUsecase.FindPosts(ctx)
+func (pc *PostController) FindPosts(ctx *gin.Context) {
+	posts, err := pc.postUsecase.FindPosts(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
-		pc.Logger.Error("failed to find posts", zap.Error(err))
+		pc.logger.Error("failed to find posts", zap.Error(err))
 		return
 	}
 

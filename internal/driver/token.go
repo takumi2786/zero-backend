@@ -1,9 +1,11 @@
 package driver
 
+import "github.com/takumi2786/zero-backend/internal/usecase"
+
 type JWTTokenGenerator struct {
 }
 
-func NewJWTTokenGenerator() *JWTTokenGenerator {
+func NewJWTTokenGenerator() usecase.TokenGenerator {
 	return &JWTTokenGenerator{}
 }
 
