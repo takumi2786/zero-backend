@@ -4,11 +4,6 @@ RUN \
   rm -f /etc/apt/apt.conf.d/docker-clean; \
   echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
-#
-# dev: 開発環境用イメージ
-#
-FROM base AS dev
-
 # OSパッケージの更新とgcc,curl等のインストール
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -31,18 +26,18 @@ RUN \
     | tar -xzC /usr/local
 ENV PATH=$PATH:/usr/local/go/bin:/root/go/bin
 
+#
+# dev: 開発環境用イメージ
+#
+FROM base AS dev
+
 # go generate用ツールのインストール
 WORKDIR /app
 ADD go.mod ./
 RUN --mount=type=cache,target=/root/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-  go install github.com/go-delve/delve/cmd/dlv@latest && \
-  go install golang.org/x/tools/gopls@latest && \
-  go install golang.org/x/tools/cmd/goimports@latest
+  go install github.com/google/wire/cmd/wire@latest
 ADD . ./
+RUN make go/build
 
-# NOTE: go buildのVCS timestampのため別ユーザーのgitリポジトリ参照を許可
-RUN \
-  git config --global --add safe.directory /app
-
-CMD ["go", "run", "./cmd", "serve"]
+ENTRYPOINT ["make", "go/run"]

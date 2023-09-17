@@ -1,1 +1,3 @@
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS user_auths;
+DROP TABLE IF EXISTS diasabled_tokens;

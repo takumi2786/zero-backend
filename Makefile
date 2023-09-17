@@ -7,10 +7,11 @@ docker/run:
 	docker-compose up -d
 
 go/build:
-	go build -o zero-api ./cmd/zero-api
+	wire ./cmd
+	go build -o zero_api ./cmd
 
 go/run:
-	set -a && source ./config/local.env && go run ./cmd/main.go
+	go run ./cmd/main.go ./cmd/wire_gen.go
 
 mysql:
 	docker-compose exec mysql mysql zero_system

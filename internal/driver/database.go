@@ -6,14 +6,14 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/takumi2786/zero-backend/internal/util"
 )
 
-func NewDB(ctx context.Context, cfg *Config) (*sqlx.DB, error) {
+func NewDB(ctx context.Context, cfg *util.Config) (*sqlx.DB, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
 		cfg.DBUser, cfg.DBPass, cfg.DBHost, cfg.DBPort, cfg.DBName,
 	)
-	fmt.Printf(dsn)
 	db, err := sqlx.Connect("mysql", dsn)
 	if err != nil {
 		return nil, err

@@ -12,7 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/takumi2786/zero-backend/internal/driver"
-	"github.com/takumi2786/zero-backend/internal/interface/router"
+	"github.com/takumi2786/zero-backend/internal/util"
+
 	"go.uber.org/zap"
 )
 
@@ -27,7 +28,7 @@ func main() {
 
 func run(ctx context.Context) error {
 	// Read environment variables
-	cfg, err := driver.NewConfig()
+	cfg, err := util.NewConfig()
 	if err != nil {
 		return err
 	}
@@ -40,9 +41,10 @@ func run(ctx context.Context) error {
 	gin := gin.Default()
 
 	// Setup logger
-	logger, _ := zap.NewProduction()
+	zapCfg := zap.NewProductionConfig()
+	zapCfg.DisableStacktrace = true
+	logger, _ := zapCfg.Build()
 	defer logger.Sync()
-	// zap.ReplaceGlobals(logger)
 
 	logger.Info("Start Server")
 
@@ -54,7 +56,7 @@ func run(ctx context.Context) error {
 
 	// Logs all panic to error log
 	//   - stack means whether output the stack info.
-	gin.Use(ginzap.RecoveryWithZap(logger, true))
+	// gin.Use(ginzap.RecoveryWithZap(logger, true))
 
 	// Connect to database
 	db, err := driver.NewDB(ctx, cfg)
@@ -70,9 +72,21 @@ func run(ctx context.Context) error {
 		AllowWildcard: true,
 	}))
 
-	// Routing
+	/*
+		Routing
+	*/
+
+	// Setup dependencies
 	timeout := time.Duration(cfg.Timeout) * time.Second
-	router.Setup(cfg, logger, gin, db, timeout)
+	lc := InitializeLoginController(cfg, logger, db)
+	pc := InitializePostController(logger, db, timeout)
+
+	// setup router
+	driver.SetRouting(
+		gin,
+		lc,
+		pc,
+	)
 
 	// Run server
 	err = gin.Run(fmt.Sprintf(":%d", cfg.Port))
