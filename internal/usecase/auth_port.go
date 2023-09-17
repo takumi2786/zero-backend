@@ -1,5 +1,5 @@
 package usecase
 
 type TokenGenerator interface {
-	GenerateToken(id int64) (*string, error)
+	GenerateToken(userId int64) (*string, error)
 }

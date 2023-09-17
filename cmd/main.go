@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/takumi2786/zero-backend/internal/driver"
+	"github.com/takumi2786/zero-backend/internal/util"
 
 	"go.uber.org/zap"
 )
@@ -27,7 +28,7 @@ func main() {
 
 func run(ctx context.Context) error {
 	// Read environment variables
-	cfg, err := driver.NewConfig()
+	cfg, err := util.NewConfig()
 	if err != nil {
 		return err
 	}
@@ -44,7 +45,6 @@ func run(ctx context.Context) error {
 	zapCfg.DisableStacktrace = true
 	logger, _ := zapCfg.Build()
 	defer logger.Sync()
-	// zap.ReplaceGlobals(logger)
 
 	logger.Info("Start Server")
 
@@ -78,7 +78,7 @@ func run(ctx context.Context) error {
 
 	// Setup dependencies
 	timeout := time.Duration(cfg.Timeout) * time.Second
-	lc := InitializeLoginController(logger, db)
+	lc := InitializeLoginController(cfg, logger, db)
 	pc := InitializePostController(logger, db, timeout)
 
 	// setup router

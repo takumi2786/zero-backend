@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/takumi2786/zero-backend/internal/domain"
+	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
@@ -15,6 +16,7 @@ var (
 )
 
 type LoginInteractor struct {
+	cfg                *util.Config
 	logger             *zap.Logger
 	userRepository     domain.UserRepository
 	authUserRepository domain.AuthUserRepository
@@ -22,12 +24,14 @@ type LoginInteractor struct {
 }
 
 func NewLoginInteractor(
+	cfg *util.Config,
 	logger *zap.Logger,
 	userRepository domain.UserRepository,
 	authUserRepository domain.AuthUserRepository,
 	tokenGenerator TokenGenerator,
 ) LoginUsecase {
 	return &LoginInteractor{
+		cfg:                cfg,
 		logger:             logger,
 		userRepository:     userRepository,
 		authUserRepository: authUserRepository,
