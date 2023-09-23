@@ -61,6 +61,7 @@ func run(ctx context.Context) error {
 	// Connect to database
 	db, err := driver.NewDB(ctx, cfg)
 	if err != nil {
+		logger.Error("Failed to connect to database")
 		panic(err)
 	}
 
@@ -75,7 +76,6 @@ func run(ctx context.Context) error {
 	/*
 		Routing
 	*/
-
 	// Setup dependencies
 	timeout := time.Duration(cfg.Timeout) * time.Second
 	lc := InitializeLoginController(cfg, logger, db)
