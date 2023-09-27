@@ -11,10 +11,10 @@ make docker/run
 curl -X POST \
 -H "Content-Type: application/json" \
 -d '{"title":"焼肉について","content":"焼肉は美味しい"}' \
-localhost:8080/posts
+localhost:8081/posts
 
 curl -X GET \
-localhost:8080/posts
+localhost:8081/posts
 
 curl -X POST \
 -H "Content-Type: application/json" \

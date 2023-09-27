@@ -8,10 +8,9 @@ package main
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/takumi2786/zero-backend/internal/driver"
+	"github.com/takumi2786/zero-backend/internal/application/usecase"
 	"github.com/takumi2786/zero-backend/internal/interface/controller"
 	"github.com/takumi2786/zero-backend/internal/interface/repository"
-	"github.com/takumi2786/zero-backend/internal/usecase"
 	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
 	"time"
@@ -26,15 +25,15 @@ import (
 func InitializeLoginController(cfg *util.Config, logger *zap.Logger, db *sqlx.DB) *controller.LoginController {
 	userRepository := repository.NewUserRepository(db)
 	authUserRepository := repository.NewAuthUserRepository(db)
-	tokenGenerator := driver.NewJWTTokenGenerator()
-	loginUsecase := usecase.NewLoginInteractor(cfg, logger, userRepository, authUserRepository, tokenGenerator)
-	loginController := controller.NewLoginController(logger, loginUsecase)
+	iTokenGenerator := usecase.NewJWTTokenGenerator()
+	iLoginUsecase := usecase.NewLoginUsecase(cfg, logger, userRepository, authUserRepository, iTokenGenerator)
+	loginController := controller.NewLoginController(logger, iLoginUsecase)
 	return loginController
 }
 
-func InitializePostController(logger *zap.Logger, db *sqlx.DB, ontextTimeout time.Duration) *controller.PostController {
+func InitializePostController(cfg *util.Config, logger *zap.Logger, db *sqlx.DB, ontextTimeout time.Duration) *controller.PostController {
 	postRepository := repository.NewPostRepository(db)
-	postUsecase := usecase.NewPostInteractor(postRepository, ontextTimeout)
-	postController := controller.NewPostController(logger, postUsecase)
+	iPostUsecase := usecase.NewPostUsecase(postRepository, ontextTimeout)
+	postController := controller.NewPostController(cfg, logger, iPostUsecase)
 	return postController
 }

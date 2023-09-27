@@ -7,13 +7,18 @@ import (
 	"github.com/takumi2786/zero-backend/internal/domain"
 )
 
-type PostInteractor struct {
+type IPostUsecase interface {
+	AddPost(ctx context.Context, post AddPostInput) error
+	FindPosts(ctx context.Context) (FindPostsOutput, error)
+}
+
+type PostUsecase struct {
 	PostRepository domain.PostRepository
 	contextTimeout time.Duration
 }
 
-func NewPostInteractor(postRepository domain.PostRepository, contextTimeout time.Duration) PostUsecase {
-	return &PostInteractor{
+func NewPostUsecase(postRepository domain.PostRepository, contextTimeout time.Duration) IPostUsecase {
+	return &PostUsecase{
 		PostRepository: postRepository,
 		contextTimeout: contextTimeout,
 	}
@@ -24,7 +29,7 @@ type AddPostInput struct {
 	Content string
 }
 
-func (pu *PostInteractor) AddPost(ctx context.Context, post AddPostInput) error {
+func (pu *PostUsecase) AddPost(ctx context.Context, post AddPostInput) error {
 	ctx, cancel := context.WithTimeout(ctx, pu.contextTimeout)
 	defer cancel()
 
@@ -48,7 +53,7 @@ type PostElement struct {
 }
 type FindPostsOutput []PostElement
 
-func (pu *PostInteractor) FindPosts(ctx context.Context) (FindPostsOutput, error) {
+func (pu *PostUsecase) FindPosts(ctx context.Context) (FindPostsOutput, error) {
 	ctx, cancel := context.WithTimeout(ctx, pu.contextTimeout)
 	defer cancel()
 
@@ -58,15 +63,12 @@ func (pu *PostInteractor) FindPosts(ctx context.Context) (FindPostsOutput, error
 	}
 
 	var response = make(FindPostsOutput, len(posts))
-	for _, post := range posts {
-		response = append(
-			response,
-			PostElement{
-				Id:      post.Id,
-				Title:   post.Title,
-				Content: post.Content,
-			},
-		)
+	for index, post := range posts {
+		response[index] = PostElement{
+			Id:      post.Id,
+			Title:   post.Title,
+			Content: post.Content,
+		}
 	}
 	return response, nil
 }
