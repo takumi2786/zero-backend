@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/takumi2786/zero-backend/internal/application/usecase"
+	"github.com/takumi2786/zero-backend/internal/interface/response"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
@@ -18,32 +18,25 @@ func NewLoginController(logger *zap.Logger, lu usecase.ILoginUsecase) *LoginCont
 	return &LoginController{ILoginUsecase: lu, Logger: logger}
 }
 
-type LoginInput struct {
+type LoginRequestBody struct {
 	Identifier string `json:"identifier" binding:"required"`
 	Credential string `json:"credencial" binding:"required"`
 }
 
-func (lc *LoginController) Login(ctx *gin.Context) {
-	// 入力値を取得
-	var loginInput LoginInput // request body
-	if err := ctx.ShouldBindJSON(&loginInput); err != nil {
-		ctx.JSON(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
-		lc.Logger.Error("failed to parse request", zap.Error(err))
-		return
-	}
+type LoginResponseBody struct {
+	Token string `json:"token"`
+}
 
-	token, err := lc.ILoginUsecase.Login(ctx, "email", loginInput.Identifier, loginInput.Credential)
+func (lc *LoginController) Login(loginRequest LoginRequestBody) (*response.SuccessResponse, *response.ErrorResponse) {
+	token, err := lc.ILoginUsecase.Login("email", loginRequest.Identifier, loginRequest.Credential)
 	if err != nil {
 		if xerrors.As(err, &usecase.FailedToAuthorise) {
-			ctx.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
-			return
+			return nil, &response.ErrorResponse{Code: http.StatusUnauthorized, Message: http.StatusText(http.StatusUnauthorized)}
 		} else if xerrors.As(err, &usecase.FailedToGenerateToken) {
-			ctx.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
-			return
+			return nil, &response.ErrorResponse{Code: http.StatusUnauthorized, Message: http.StatusText(http.StatusUnauthorized)}
 		}
-		ctx.JSON(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		lc.Logger.Error("failed to login", zap.Error(err))
-		return
+		return nil, &response.ErrorResponse{Code: http.StatusInternalServerError, Message: http.StatusText(http.StatusInternalServerError)}
 	}
-	ctx.JSON(http.StatusOK, gin.H{"token": *token})
+	return &response.SuccessResponse{Code: http.StatusOK, Body: LoginResponseBody{Token: *token}}, nil
 }

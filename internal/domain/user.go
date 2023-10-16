@@ -1,7 +1,5 @@
 package domain
 
-import "context"
-
 type User struct {
 	UserId int64  `json:"userId" db:"user_id"`
 	Name   string `json:"name" db:"name"`
@@ -16,9 +14,9 @@ type UserAuth struct {
 }
 
 type UserRepository interface {
-	GetByUserId(ctx context.Context, userId int64) (*User, error)
+	GetByUserId(userId int64) (*User, error)
 }
 
 type AuthUserRepository interface {
-	GetByIdentifier(ctx context.Context, identityType string, identifier string) (*UserAuth, error)
+	GetByIdentifier(identityType string, identifier string) (*UserAuth, error)
 }

@@ -13,7 +13,6 @@ import (
 	"github.com/takumi2786/zero-backend/internal/interface/repository"
 	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
-	"time"
 )
 
 import (
@@ -29,11 +28,4 @@ func InitializeLoginController(cfg *util.Config, logger *zap.Logger, db *sqlx.DB
 	iLoginUsecase := usecase.NewLoginUsecase(cfg, logger, userRepository, authUserRepository, iTokenGenerator)
 	loginController := controller.NewLoginController(logger, iLoginUsecase)
 	return loginController
-}
-
-func InitializePostController(cfg *util.Config, logger *zap.Logger, db *sqlx.DB, ontextTimeout time.Duration) *controller.PostController {
-	postRepository := repository.NewPostRepository(db)
-	iPostUsecase := usecase.NewPostUsecase(postRepository, ontextTimeout)
-	postController := controller.NewPostController(cfg, logger, iPostUsecase)
-	return postController
 }

@@ -4,8 +4,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
 	"github.com/takumi2786/zero-backend/internal/application/usecase"
@@ -24,13 +22,4 @@ func InitializeLoginController(cfg *util.Config, logger *zap.Logger, db *sqlx.DB
 		controller.NewLoginController,
 	)
 	return &controller.LoginController{}
-}
-
-func InitializePostController(logger *zap.Logger, db *sqlx.DB, ontextTimeout time.Duration) *controller.PostController {
-	wire.Build(
-		repository.NewPostRepository,
-		usecase.NewPostUsecase,
-		controller.NewPostController,
-	)
-	return &controller.PostController{}
 }
