@@ -11,7 +11,7 @@ import (
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/takumi2786/zero-backend/internal/driver"
+	"github.com/takumi2786/zero-backend/internal/infrastructure"
 	"github.com/takumi2786/zero-backend/internal/util"
 
 	"go.uber.org/zap"
@@ -59,8 +59,9 @@ func run(ctx context.Context) error {
 	// gin.Use(ginzap.RecoveryWithZap(logger, true))
 
 	// Connect to database
-	db, err := driver.NewDB(ctx, cfg)
+	db, err := infrastructure.NewDB(ctx, cfg)
 	if err != nil {
+		logger.Error("Failed to connect to database")
 		panic(err)
 	}
 
@@ -75,14 +76,13 @@ func run(ctx context.Context) error {
 	/*
 		Routing
 	*/
-
 	// Setup dependencies
 	timeout := time.Duration(cfg.Timeout) * time.Second
 	lc := InitializeLoginController(cfg, logger, db)
 	pc := InitializePostController(logger, db, timeout)
 
 	// setup router
-	driver.SetRouting(
+	infrastructure.SetRouting(
 		gin,
 		lc,
 		pc,

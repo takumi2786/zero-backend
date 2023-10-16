@@ -1,4 +1,4 @@
 /*
 ginのミドルウェアを実装する
 */
-package driver
+package infrastructure

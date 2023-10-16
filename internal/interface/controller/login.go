@@ -4,18 +4,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/takumi2786/zero-backend/internal/usecase"
+	"github.com/takumi2786/zero-backend/internal/application/usecase"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
 type LoginController struct {
-	Logger       *zap.Logger
-	LoginUsecase usecase.LoginUsecase
+	Logger        *zap.Logger
+	ILoginUsecase usecase.ILoginUsecase
 }
 
-func NewLoginController(logger *zap.Logger, lu usecase.LoginUsecase) *LoginController {
-	return &LoginController{LoginUsecase: lu, Logger: logger}
+func NewLoginController(logger *zap.Logger, lu usecase.ILoginUsecase) *LoginController {
+	return &LoginController{ILoginUsecase: lu, Logger: logger}
 }
 
 type LoginInput struct {
@@ -32,8 +32,7 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 		return
 	}
 
-	// usecaseのメソッドを呼び出す
-	token, err := lc.LoginUsecase.Login(ctx, "email", loginInput.Identifier, loginInput.Credential)
+	token, err := lc.ILoginUsecase.Login(ctx, "email", loginInput.Identifier, loginInput.Credential)
 	if err != nil {
 		if xerrors.As(err, &usecase.FailedToAuthorise) {
 			ctx.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))

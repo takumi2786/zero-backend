@@ -1,26 +1,41 @@
-package driver
+package infrastructure
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/takumi2786/zero-backend/internal/util"
 )
+
+var retryCount = 0
+
+const maxRetryCount = 10
+
+func connect(dsn string) (*sqlx.DB, error) {
+	db, err := sqlx.Connect("mysql", dsn)
+	if err != nil {
+		if retryCount < maxRetryCount {
+			time.Sleep(time.Second)
+			retryCount++
+			return connect(dsn)
+		} else {
+			return nil, err
+		}
+	}
+	db.SetMaxIdleConns(30)
+	db.SetMaxOpenConns(10)
+	return db, nil
+}
 
 func NewDB(ctx context.Context, cfg *util.Config) (*sqlx.DB, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
 		cfg.DBUser, cfg.DBPass, cfg.DBHost, cfg.DBPort, cfg.DBName,
 	)
-	db, err := sqlx.Connect("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxIdleConns(30)
-	db.SetMaxOpenConns(10)
-	return db, nil
+	return connect(dsn)
 }
 
 /*

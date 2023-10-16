@@ -1,4 +1,4 @@
-package driver
+package infrastructure
 
 import (
 	"github.com/gin-gonic/gin"

@@ -4,18 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/takumi2786/zero-backend/internal/application/usecase"
 	"github.com/takumi2786/zero-backend/internal/domain"
-	"github.com/takumi2786/zero-backend/internal/usecase"
+	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
 )
 
 type PostController struct {
-	logger      *zap.Logger
-	postUsecase usecase.PostUsecase
+	config       *util.Config
+	logger       *zap.Logger
+	IPostUsecase usecase.IPostUsecase
 }
 
-func NewPostController(logger *zap.Logger, pu usecase.PostUsecase) *PostController {
-	return &PostController{postUsecase: pu, logger: logger}
+func NewPostController(cfg *util.Config, logger *zap.Logger, pu usecase.IPostUsecase) *PostController {
+	return &PostController{config: cfg, IPostUsecase: pu, logger: logger}
 }
 
 /*
@@ -36,7 +38,7 @@ func (pc *PostController) AddPost(ctx *gin.Context) {
 	}
 
 	// usecaseのメソッドを呼び出す
-	err := pc.postUsecase.AddPost(
+	err := pc.IPostUsecase.AddPost(
 		ctx, usecase.AddPostInput{Title: postInput.Title, Content: postInput.Content},
 	)
 	if err != nil {
@@ -58,7 +60,7 @@ type PostElement struct {
 type FindPostsOutPut []PostElement
 
 func (pc *PostController) FindPosts(ctx *gin.Context) {
-	posts, err := pc.postUsecase.FindPosts(ctx)
+	posts, err := pc.IPostUsecase.FindPosts(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		pc.logger.Error("failed to find posts", zap.Error(err))
@@ -66,11 +68,8 @@ func (pc *PostController) FindPosts(ctx *gin.Context) {
 	}
 
 	results := make(FindPostsOutPut, len(posts))
-	for _, post := range posts {
-		results = append(
-			results,
-			PostElement{Id: post.Id, Title: post.Title, Content: post.Content},
-		)
+	for index, post := range posts {
+		results[index] = PostElement{Id: post.Id, Title: post.Title, Content: post.Content}
 	}
 	ctx.JSON(http.StatusOK, results)
 }
