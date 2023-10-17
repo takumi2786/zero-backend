@@ -6,8 +6,9 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/takumi2786/zero-backend/internal/infrastructure"
+	sqlx_ "github.com/takumi2786/zero-backend/internal/infrastructure/database/sqlx"
 	"github.com/takumi2786/zero-backend/internal/infrastructure/waf/gin"
+
 	"github.com/takumi2786/zero-backend/internal/util"
 
 	"go.uber.org/zap"
@@ -36,13 +37,15 @@ func run(ctx context.Context) error {
 	defer logger.Sync()
 
 	// Connect to database
-	db, err := infrastructure.NewDB(ctx, cfg)
+	db, err := sqlx_.NewDB(cfg)
 	if err != nil {
 		logger.Error("Failed to connect to database")
 		panic(err)
 	}
-	ginApp := gin.NewGinApp(cfg, logger, db)
-	lc := InitializeLoginController(cfg, logger, db)
+	sqlHandler := sqlx_.NewSQLHandler(db)
+
+	ginApp := gin.NewGinApp(cfg, logger, sqlHandler)
+	lc := InitializeLoginController(cfg, logger, sqlHandler)
 	err = ginApp.Run(lc)
 	if err != nil {
 		panic(err)

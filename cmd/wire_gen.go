@@ -7,10 +7,9 @@
 package main
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/takumi2786/zero-backend/internal/application/usecase"
-	"github.com/takumi2786/zero-backend/internal/interface/controller"
-	"github.com/takumi2786/zero-backend/internal/interface/repository"
+	"github.com/takumi2786/zero-backend/internal/interfaces/controller"
+	"github.com/takumi2786/zero-backend/internal/interfaces/repository"
 	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
 )
@@ -21,9 +20,9 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeLoginController(cfg *util.Config, logger *zap.Logger, db *sqlx.DB) *controller.LoginController {
-	userRepository := repository.NewUserRepository(db)
-	authUserRepository := repository.NewAuthUserRepository(db)
+func InitializeLoginController(cfg *util.Config, logger *zap.Logger, sqlHandler repository.SQLHandler) *controller.LoginController {
+	userRepository := repository.NewUserRepository(sqlHandler)
+	authUserRepository := repository.NewAuthUserRepository(sqlHandler)
 	iTokenGenerator := usecase.NewJWTTokenGenerator()
 	iLoginUsecase := usecase.NewLoginUsecase(cfg, logger, userRepository, authUserRepository, iTokenGenerator)
 	loginController := controller.NewLoginController(logger, iLoginUsecase)

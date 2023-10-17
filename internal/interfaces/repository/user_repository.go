@@ -1,25 +1,28 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/takumi2786/zero-backend/internal/domain"
 )
+
+/*
+ここには、SQLHanndlerを利用したデータベースへのアクセス処理を実装する。
+*/
 
 /*
 User
 */
 type UserRepository struct {
-	db *sqlx.DB
+	sqlHandler SQLHandler
 }
 
-func NewUserRepository(db *sqlx.DB) domain.UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(sqlHandler SQLHandler) domain.UserRepository {
+	return &UserRepository{sqlHandler: sqlHandler}
 }
 
 func (r *UserRepository) GetByUserId(userId int64) (*domain.User, error) {
 	var user domain.User
 	sql := "SELECT user_id, name FROM users WHERE user_id = ?"
-	err := r.db.Get(&user, sql, userId)
+	err := r.sqlHandler.Get(&user, sql, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -31,17 +34,17 @@ func (r *UserRepository) GetByUserId(userId int64) (*domain.User, error) {
 AuthUser
 */
 type AuthUserRepository struct {
-	db *sqlx.DB
+	sqlHandler SQLHandler
 }
 
-func NewAuthUserRepository(db *sqlx.DB) domain.AuthUserRepository {
-	return &AuthUserRepository{db: db}
+func NewAuthUserRepository(sqlHandler SQLHandler) domain.AuthUserRepository {
+	return &AuthUserRepository{sqlHandler: sqlHandler}
 }
 
 func (r *AuthUserRepository) GetByIdentifier(identityType string, identifier string) (*domain.UserAuth, error) {
 	var authUser domain.UserAuth
 	sql := "SELECT * FROM user_auths WHERE identifier = ? AND identity_type = ?"
-	err := r.db.Get(&authUser, sql, identifier, identityType)
+	err := r.sqlHandler.Get(&authUser, sql, identifier, identityType)
 	if err != nil {
 		return nil, err
 	}

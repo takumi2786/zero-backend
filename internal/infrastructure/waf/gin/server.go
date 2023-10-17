@@ -7,20 +7,23 @@ import (
 
 	ginzap "github.com/gin-contrib/zap"
 	gin "github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx"
-	"github.com/takumi2786/zero-backend/internal/interface/controller"
+	"github.com/takumi2786/zero-backend/internal/interfaces/controller"
+	"github.com/takumi2786/zero-backend/internal/interfaces/repository"
 	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
 )
 
+/*
+Controllerの出力をフレームワーク独自の方法で利用者へ返す処理を記述する
+*/
 type GinApp struct {
-	cfg    *util.Config
-	logger *zap.Logger
-	db     *sqlx.DB
+	cfg        *util.Config
+	logger     *zap.Logger
+	sqlHandler repository.SQLHandler
 }
 
-func NewGinApp(cfg *util.Config, logger *zap.Logger, db *sqlx.DB) *GinApp {
-	return &GinApp{cfg: cfg, logger: logger, db: db}
+func NewGinApp(cfg *util.Config, logger *zap.Logger, sqlHandler repository.SQLHandler) *GinApp {
+	return &GinApp{cfg: cfg, logger: logger, sqlHandler: sqlHandler}
 }
 
 func (ga *GinApp) Run(lc *controller.LoginController) error {
