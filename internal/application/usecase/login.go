@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -12,7 +11,7 @@ import (
 )
 
 type ILoginUsecase interface {
-	Login(ctx context.Context, identityType string, identifier string, credential string) (*string, error)
+	Login(identityType string, identifier string, credential string) (*string, error)
 }
 
 var (
@@ -49,7 +48,6 @@ func NewLoginUsecase(
 指定した認証方法で認証を実行し、ユーザーを特定する。
 */
 func (lu *LoginUsecase) authentication(
-	ctx context.Context,
 	identityType string,
 	identifier string,
 	credential string,
@@ -61,7 +59,7 @@ func (lu *LoginUsecase) authentication(
 		)
 		return nil, nil
 	}
-	auth, err := lu.authUserRepository.GetByIdentifier(ctx, identityType, identifier)
+	auth, err := lu.authUserRepository.GetByIdentifier(identityType, identifier)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +69,7 @@ func (lu *LoginUsecase) authentication(
 	if auth.Credential != credential {
 		return nil, nil
 	}
-	user, err := lu.userRepository.GetByUserId(ctx, auth.UserId)
+	user, err := lu.userRepository.GetByUserId(auth.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +85,8 @@ func (lu *LoginUsecase) authentication(
 /*
 認証を実行したのちにトークンを生成する。
 */
-func (lu *LoginUsecase) Login(ctx context.Context, identityType string, identifier string, credential string) (*string, error) {
-	user, err := lu.authentication(ctx, identityType, identifier, credential)
+func (lu *LoginUsecase) Login(identityType string, identifier string, credential string) (*string, error) {
+	user, err := lu.authentication(identityType, identifier, credential)
 	if err != nil {
 		return nil, xerrors.Errorf("%v: %w", FailedToAuthorise, err)
 	}
