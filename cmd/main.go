@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	sqlx_ "github.com/takumi2786/zero-backend/internal/infrastructure/database/sqlx"
-	"github.com/takumi2786/zero-backend/internal/infrastructure/waf/gin"
+	gin_ "github.com/takumi2786/zero-backend/internal/infrastructure/waf/gin"
 
 	"github.com/takumi2786/zero-backend/internal/util"
 
@@ -44,9 +44,9 @@ func run(ctx context.Context) error {
 	}
 	sqlHandler := sqlx_.NewSQLHandler(db)
 
-	ginApp := gin.NewGinApp(cfg, logger, sqlHandler)
-	lc := InitializeLoginController(cfg, logger, sqlHandler)
-	err = ginApp.Run(lc)
+	err = gin_.Run(cfg, logger, sqlHandler)
+	// lc := InitializeLoginController(cfg, logger, sqlHandler)
+	// err = ginApp.Run(lc)
 	if err != nil {
 		panic(err)
 	}

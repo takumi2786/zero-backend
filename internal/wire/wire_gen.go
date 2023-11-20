@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package wire
 
 import (
 	"github.com/takumi2786/zero-backend/internal/application/usecase"
@@ -12,10 +12,6 @@ import (
 	"github.com/takumi2786/zero-backend/internal/interfaces/repository"
 	"github.com/takumi2786/zero-backend/internal/util"
 	"go.uber.org/zap"
-)
-
-import (
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // Injectors from wire.go:
